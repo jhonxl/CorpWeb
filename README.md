@@ -24,8 +24,8 @@ Você precisará ter o **Python 3** e o **Hydra** instalados em seu sistema.
 ### 1. Clonar o Repositório
 
 ```bash
-git clone [INSIRA O LINK DO SEU REPOSITÓRIO AQUI]
-cd nome-do-repositorio
+git clone https://github.com/jhonxl/CorpWeb
+cd CorpWeb
 ````
 
 ### 2\. Instalar Dependências Python
