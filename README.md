@@ -121,4 +121,13 @@ hydra -L users.txt -p CorpWeb123! 127.0.0.1 -s 5001 http-post-form \
 **Lembre-se de desativar o ambiente virtual ao terminar:** `deactivate`
 
 ```
+## 🛠️ Ferramentas que eu recomendo:
+
+Aqui está a lista de ferramentas que você pode sugerir ao seu público:
+
+* **Burp Suite**
+* **jwt.io**
+* **Curl**
+* **Hydra**
+* **Dirb** / **Ffuf** / **Gobuster** (Para Fuzzing/Enumeração de Diretórios)
 ```
