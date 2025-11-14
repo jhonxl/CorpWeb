@@ -141,8 +141,8 @@ def token_required(f):
 # =============================
 # ROTA DE LOGIN HTML (NOVA)
 # =============================
-@app.route('/login_page', methods=['GET'])
-def login_page():
+@app.route('/login', methods=['GET'])
+def login():
     return render_template_string(LOGIN_TEMPLATE)
 
 # =============================
@@ -246,7 +246,7 @@ def home():
     return jsonify({
         'message': 'Alvo 1 - JWT API Vulnerable',
         'endpoints': {
-            '/login_page': 'GET - Tela de login HTML',
+            '/login': 'GET - Tela de login HTML',
             '/check_login': 'POST - Verificação de login HTML',
             '/register': 'POST - Registrar novo usuário',
             '/login': 'POST - Fazer login e receber JWT',
@@ -260,7 +260,7 @@ if __name__ == '__main__':
     print(f"🔑 SECRET KEY: {SECRET_KEY}")
     print("=" * 60)
     print("\n📋 INSTRUÇÕES DE USO:")
-    print("1. Use /login_page para acessar a tela de login HTML")
+    print("1. Use /login para acessar a tela de login HTML")
     print("2. Faça login com qualquer email válido e password='teste123'")
     print("3. Copie o token exibido e use no header Authorization")
     print("4. Acesse /api/users/ com o token para ver TODOS os usuários")
