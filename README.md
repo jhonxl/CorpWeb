@@ -181,5 +181,3 @@ Este lab é indicado para:
 * Estudos de Pentest
 * Treinamento ofensivo
 
-```
-
