@@ -166,4 +166,5 @@ if __name__ == "__main__":
     print("👉 http://127.0.0.1:5000/login")
     print("👉 http://127.0.0.1:5000/api/users")
     print("=" * 60)
-    app.run(port=5000, debug=True)
+    app.run(port=5000, debug=True, use_reloader=False)
+
