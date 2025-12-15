@@ -335,4 +335,4 @@ if __name__ == "__main__":
     print("=" * 60)
     print(f"🎯 Alvo 1 (JWT) rodando em http://127.0.0.1:5000")
     print("=" * 60)
-    app.run(port=5000, debug=True, use_reloader=False)
+    app.run(port=5000, debug=True)
