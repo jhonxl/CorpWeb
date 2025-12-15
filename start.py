@@ -54,11 +54,11 @@ def main():
 
     print("[INFO] Aguardando Alvo 1 ficar disponível...")
 
-    if wait_for_port("127.0.0.1", 5000):
-        print("[INFO] Abrindo navegador no Alvo 1 (JWT)...")
-        webbrowser.open("http://127.0.0.1:5000/login")
-    else:
-        print("[ERRO] Alvo 1 não respondeu a tempo.")
+if wait_for_port("127.0.0.1", 5000, timeout=20):
+    print("[INFO] Abrindo navegador no Alvo 1 (JWT)...")
+    webbrowser.open("http://127.0.0.1:5000/login")
+else:
+    print("[ERRO] Alvo 1 não respondeu a tempo.")
 
     try:
         while True:
