@@ -19,7 +19,7 @@ USERS_DB = {
 NEXT_ID = 4  # Próximo ID para registro
 
 # =============================
-# TEMPLATE DE LOGIN 
+# TEMPLATE DE LOGIN
 # =============================
 LOGIN_TEMPLATE = '''
 <!DOCTYPE html>
@@ -41,7 +41,6 @@ LOGIN_TEMPLATE = '''
             background: #161b22;
             padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.4);
             width: 300px;
             border: 1px solid #30363d;
         }
@@ -49,30 +48,18 @@ LOGIN_TEMPLATE = '''
             text-align: center;
             color: #58a6ff;
         }
-        input {
+        input, button {
             width: 100%;
             padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #30363d;
+            margin-top: 10px;
             background: #0d1117;
             color: #f0f6fc;
+            border: 1px solid #30363d;
             border-radius: 4px;
-            box-sizing: border-box;
-        }
-        input:focus {
-            border-color: #58a6ff;
-            outline: none;
-            box-shadow: 0 0 5px #58a6ff;
         }
         button {
-            width: 100%;
-            padding: 10px;
             background-color: #238636;
-            color: white;
-            border: none;
-            border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
         }
         button:hover {
             background-color: #2ea043;
@@ -80,18 +67,10 @@ LOGIN_TEMPLATE = '''
         .message {
             margin-top: 15px;
             padding: 10px;
-            border-radius: 4px;
             text-align: center;
         }
-        .success {
-            background-color: #1b4721;
-            color: #3fb950;
-            border: 1px solid #2ea043;
-        }
         .error {
-            background-color: #3b0a0a;
             color: #ff7b72;
-            border: 1px solid #ff7b72;
         }
     </style>
 </head>
@@ -104,9 +83,7 @@ LOGIN_TEMPLATE = '''
             <button type="submit">Login</button>
         </form>
         {% if message %}
-        <div class="message {{ message_type }}">
-            {{ message }}
-        </div>
+            <div class="message error">{{ message }}</div>
         {% endif %}
     </div>
 </body>
@@ -114,155 +91,127 @@ LOGIN_TEMPLATE = '''
 '''
 
 # =============================
-# DECORADOR DE TOKEN
+# DECORADOR JWT
 # =============================
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
-        if 'Authorization' in request.headers:
-            auth_header = request.headers['Authorization']
-            if auth_header.startswith('Bearer '):
-                token = auth_header.split(' ')[1]
+
+        auth = request.headers.get("Authorization")
+        if auth and auth.startswith("Bearer "):
+            token = auth.split(" ")[1]
 
         if not token:
-            return jsonify({'message': 'Token is missing!'}), 401
-        
+            return jsonify({'message': 'Token is missing'}), 401
+
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-            current_user = USERS_DB.get(data['user_id']) 
-        except:
-            return jsonify({'message': 'Token is invalid or expired!'}), 401
+            current_user = USERS_DB.get(data["user_id"])
+        except Exception:
+            return jsonify({'message': 'Invalid or expired token'}), 401
 
         return f(current_user, *args, **kwargs)
 
     return decorated
 
 # =============================
-# ROTA DE LOGIN HTML (NOVA)
+# LOGIN HTML
 # =============================
 @app.route('/login', methods=['GET'])
-def login():
+def login_html():
     return render_template_string(LOGIN_TEMPLATE)
 
 # =============================
-# ROTA QUE PROCESSA LOGIN HTML (NOVA)
+# PROCESSA LOGIN HTML
+# JWT APENAS NO CONSOLE
 # =============================
 @app.route('/check_login', methods=['POST'])
 def check_login():
     username = request.form.get("username")
     password = request.form.get("password")
 
-    user_match = next((u for u in USERS_DB.values() if u["email"] == username), None)
+    user = next((u for u in USERS_DB.values() if u["email"] == username), None)
 
-    if user_match and password == "teste123":
-        # gera o token para mostrar ao usuário
-        token_payload = {
-            'user_id': user_match['id'],
-            'email': user_match['email'],
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+    if user and password == "teste123":
+        payload = {
+            "user_id": user["id"],
+            "email": user["email"],
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
         }
-        token = jwt.encode(token_payload, SECRET_KEY, algorithm="HS256")
 
-        # Exibe o token diretamente na página
-        return render_template_string(
-            LOGIN_TEMPLATE,
-            message=f"Login OK! Use este token:<br><br><textarea style='width:100%;height:80px;'>{token}</textarea>",
-            message_type="success"
-        )
+        token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
-    return render_template_string(
-        LOGIN_TEMPLATE,
-        message="Credenciais inválidas",
-        message_type="error"
-    )
+        return render_template_string(f'''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CorpWeb - Dashboard</title>
+    <script>
+        console.log("JWT Token:", "{token}");
+    </script>
+</head>
+<body style="background:#0d1117;color:#f0f6fc;font-family:Arial;text-align:center;padding-top:50px;">
+    <h2>Login realizado com sucesso</h2>
+    <p>Bem-vindo ao sistema.</p>
+    <p style="color:#8b949e;font-size:14px;">
+        Nenhuma informação sensível é exibida na interface.
+    </p>
+</body>
+</html>
+        ''')
 
-# =============================
-# ENDPOINT ORIGINAL DE REGISTRO
-# =============================
-@app.route('/register', methods=['POST'])
-def register():
-    global NEXT_ID
-    data = request.get_json()
-    
-    if not data or not data.get('email') or not data.get('password'):
-        return jsonify({'message': 'Email and password are required'}), 400
-    
-    new_user = {
-        "id": NEXT_ID,
-        "email": data.get('email'),
-        "password_hash": "mocked_hash_for_" + data.get('password'),
-        "name": data.get('name', 'Novo Usuario'),
-        "role": "user"
-    }
-    USERS_DB[NEXT_ID] = new_user
-    NEXT_ID += 1
-    return jsonify({'message': 'User registered successfully!', 'user_id': new_user['id']}), 201
+    return render_template_string(LOGIN_TEMPLATE, message="Credenciais inválidas")
 
 # =============================
-# ENDPOINT DE LOGIN API ORIGINAL
+# LOGIN API (JSON)
 # =============================
 @app.route('/login', methods=['POST'])
-def login():
+def login_api():
     data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
-    
-    if not email or not password:
-        return jsonify({'message': 'Email and password are required'}), 400
-    
-    user_match = next((u for u in USERS_DB.values() if u['email'] == email), None)
+    email = data.get("email")
+    password = data.get("password")
 
-    if user_match and password == 'teste123':
-        token_payload = {
-            'user_id': user_match['id'],
-            'email': user_match['email'],
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+    user = next((u for u in USERS_DB.values() if u["email"] == email), None)
+
+    if user and password == "teste123":
+        payload = {
+            "user_id": user["id"],
+            "email": user["email"],
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
         }
-        token = jwt.encode(token_payload, app.config['SECRET_KEY'], algorithm="HS256")
-        
-        return jsonify({'message': 'Login successful!', 'token': token}), 200
-    
-    return jsonify({'message': 'Invalid credentials'}), 401
+        token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+        return jsonify({"token": token}), 200
+
+    return jsonify({"message": "Invalid credentials"}), 401
 
 # =============================
-# ENDPOINT VULNERÁVEL (LISTA TUDO)
+# ENDPOINT VULNERÁVEL
 # =============================
 @app.route('/api/users/', methods=['GET'])
 @token_required
-def list_all_users(current_user):
-    user_list = list(USERS_DB.values())
+def list_users(current_user):
     return jsonify({
-        'users': user_list,
-        'total': len(user_list),
-        'message': 'All users retrieved successfully'
-    }), 200
+        "users": list(USERS_DB.values()),
+        "total": len(USERS_DB)
+    })
 
 # =============================
 # HOME
 # =============================
-@app.route('/', methods=['GET'])
+@app.route('/')
 def home():
     return jsonify({
-        'message': 'Alvo 1 - JWT API Vulnerable',
-        'endpoints': {
-            '/login': 'GET - Tela de login HTML',
-            '/check_login': 'POST - Verificação de login HTML',
-            '/register': 'POST - Registrar novo usuário',
-            '/login': 'POST - Fazer login e receber JWT',
-            '/api/users/': 'GET - Listar todos os usuários (requer JWT)'
-        }
-    }), 200
+        "message": "Alvo 1 - JWT Vulnerable API",
+        "hint": "Faça login via HTML, encontre o token no console e enumere /api/users/"
+    })
 
+# =============================
+# MAIN
+# =============================
 if __name__ == '__main__':
     print("=" * 60)
-    print(f"🎯 Alvo 1 (JWT API) rodando em http://127.0.0.1:5000")
-    print(f"🔑 SECRET KEY: {SECRET_KEY}")
-    print("=" * 60)
-    print("\n📋 INSTRUÇÕES DE USO:")
-    print("1. Use /login para acessar a tela de login HTML")
-    print("2. Faça login com qualquer email válido e password='teste123'")
-    print("3. Copie o token exibido e use no header Authorization")
-    print("4. Acesse /api/users/ com o token para ver TODOS os usuários")
+    print("🎯 Alvo 1 (JWT API) rodando em http://127.0.0.1:5000")
+    print("🔑 JWT NÃO É EXIBIDO NA TELA — APENAS NO CONSOLE")
     print("=" * 60)
     app.run(debug=True, port=5000)
