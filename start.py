@@ -1,71 +1,60 @@
 import subprocess
 import sys
 import time
-import os
 import webbrowser
+import os
 
-REQUIREMENTS = "requirements.txt"
+def clear_terminal():
+    os.system("cls" if os.name == "nt" else "clear")
 
 def banner():
-    print("""
-==============================================
- 🧪 CorpWeb Security Lab
-==============================================
-
-Alvo 1 - JWT Fraco (API):
-  http://127.0.0.1:5000
-
-Alvo 2 - Senha Padrão (Login Web):
-  http://127.0.0.1:5001/login
-
-CTRL+C para encerrar os alvos
-==============================================
-""")
-
-def check_requirements():
-    try:
-        import flask
-        import jwt
-    except ImportError:
-        print("[INFO] Dependências não encontradas. Instalando automaticamente...")
-        subprocess.check_call(
-            [sys.executable, "-m", "pip", "install", "-r", REQUIREMENTS]
-        )
-
-def check_files():
-    for f in ["alvo1_jwt.py", "alvo2_senha_padrao.py"]:
-        if not os.path.isfile(f):
-            print(f"[ERRO] Arquivo ausente: {f}")
-            sys.exit(1)
-
-def open_browser():
-    # pequeno delay para garantir que o Flask já subiu
-    time.sleep(2)
-
-    print("[INFO] Abrindo navegador automaticamente...")
-    webbrowser.open("http://127.0.0.1:5000")
-    webbrowser.open("http://127.0.0.1:5001/login")
+    print("=" * 46)
+    print(" 🧪 CorpWeb Security Lab")
+    print("=" * 46)
+    print()
+    print("Alvo 1 - JWT Fraco (API)")
+    print(" 👉 http://127.0.0.1:5000/login")
+    print(" 👉 http://127.0.0.1:5000/api/users")
+    print()
+    print("Alvo 2 - Senha Padrão (Login Web)")
+    print(" 👉 http://127.0.0.1:5001/login")
+    print()
+    print("CTRL+C para encerrar os alvos")
+    print("=" * 46)
+    print()
 
 def main():
+    clear_terminal()
     banner()
-    check_files()
-    check_requirements()
 
+    # Inicia Alvo 1
+    subprocess.Popen(
+        [sys.executable, "alvo1_jwt.py"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
+
+    # Pequena pausa para garantir que a porta 5000 suba primeiro
+    time.sleep(2)
+
+    # Inicia Alvo 2
+    subprocess.Popen(
+        [sys.executable, "alvo2_senha_padrao.py"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
+
+    # Aguarda e abre o navegador no ALVO 1
+    time.sleep(2)
+    print("[INFO] Abrindo navegador no Alvo 1 (JWT)...")
+    webbrowser.open("http://127.0.0.1:5000/login")
+
+    # Mantém o script vivo
     try:
-        subprocess.Popen([sys.executable, "alvo1_jwt.py"])
-        subprocess.Popen([sys.executable, "alvo2_senha_padrao.py"])
-
-        open_browser()
-
         while True:
             time.sleep(1)
-
     except KeyboardInterrupt:
-        print("\n[INFO] Encerrando o lab...")
-        sys.exit(0)
-
-    except Exception as e:
-        print("[ERRO] Falha ao iniciar os alvos:", e)
+        print("\n[INFO] Encerrando CorpWeb Security Lab.")
 
 if __name__ == "__main__":
     main()
