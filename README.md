@@ -127,15 +127,7 @@ teste123
 2. Faça login com um dos emails válidos e a senha fixa
 3. Após o login, abra o **Console do Navegador (F12)**
    → O token JWT será exibido **apenas no console**
-4. Utilize o token para acessar:
-
-```http
-GET /api/users/
-Authorization: Bearer <SEU_TOKEN_JWT>
-```
-
-Este endpoint permite **enumeração completa de usuários**.
-
+4. Utilize o token para acessar endpoints
 ---
 
 ## 🔹 Alvo 2 – Senha Padrão
