@@ -24,7 +24,7 @@ def banner():
     print("=" * 46)
     print()
 
-def wait_for_port(host, port, timeout=20):
+def wait_for_port(host, port, timeout=30):
     start_time = time.time()
     while time.time() - start_time < timeout:
         try:
@@ -52,9 +52,12 @@ def main():
         stderr=subprocess.DEVNULL
     )
 
+    # 🔑 Tempo para o Flask inicializar corretamente (especialmente no Windows)
+    time.sleep(2)
+
     print("[INFO] Aguardando Alvo 1 ficar disponível...")
 
-    if wait_for_port("127.0.0.1", 5000):
+    if wait_for_port("127.0.0.1", 5000, timeout=30):
         print("[INFO] Abrindo navegador no Alvo 1 (JWT)...")
         webbrowser.open("http://127.0.0.1:5000/login")
     else:
