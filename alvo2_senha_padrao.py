@@ -185,4 +185,5 @@ if __name__ == '__main__':
     print("hydra -L users.txt -p CorpWeb123! 127.0.0.1 -s 5001 http-post-form")
     print('"/check_login:username=^USER^&password=^PASS^:Invalid Credentials"')
     print("=" * 60)
-    app.run(debug=True, port=5001)
+    app.run(port=5001, debug=True, use_reloader=False)
+
