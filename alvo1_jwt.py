@@ -2,16 +2,40 @@ from flask import Flask, request, jsonify, render_template_string
 import jwt
 import datetime
 from functools import wraps
+import hashlib
 
 app = Flask(__name__)
 
 SECRET_KEY = "super-secreta"
 app.config["SECRET_KEY"] = SECRET_KEY
 
+# 🔐 Função de hash fraco (intencional)
+def weak_hash(password):
+    return hashlib.md5(password.encode()).hexdigest()
+
+# 🗄️ "Banco de dados"
 USERS_DB = {
-    1: {"id": 1, "email": "admin@corpweb.lab", "name": "Admin CorpWeb", "role": "admin"},
-    2: {"id": 2, "email": "jsantos@corpweb.lab", "name": "Usuario Um", "role": "user"},
-    3: {"id": 3, "email": "jsilva@corpweb.lab", "name": "Usuario Dois", "role": "user"}
+    1: {
+        "id": 1,
+        "email": "admin@corpweb.lab",
+        "name": "Admin CorpWeb",
+        "role": "admin",
+        "password_hash": weak_hash("love")
+    },
+    2: {
+        "id": 2,
+        "email": "jsantos@corpweb.lab",
+        "name": "João Santos",
+        "role": "user",
+        "password_plain": "teste123"  # 👈 único usuário com senha conhecida
+    },
+    3: {
+        "id": 3,
+        "email": "jsilva@corpweb.lab",
+        "name": "João Silva",
+        "role": "user",
+        "password_hash": weak_hash("welcome")
+    }
 }
 
 LOGIN_TEMPLATE = """
@@ -19,161 +43,34 @@ LOGIN_TEMPLATE = """
 <html>
 <head>
     <title>CorpWeb API Login</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            width: 100%;
-            max-width: 400px;
-        }
-        h2 { text-align: center; margin-bottom: 30px; }
-        .input-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; }
-        input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 2px solid #e0e0e0;
-        }
-        button {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        .error {
-            margin-top: 15px;
-            color: #c33;
-            text-align: center;
-        }
-        .hint {
-            margin-top: 20px;
-            font-size: 13px;
-            text-align: center;
-            color: #666;
-        }
-    </style>
 </head>
-<body>
-    <div class="login-container">
-        <h2>🔐 CorpWeb API</h2>
-        <form method="POST">
-            <div class="input-group">
-                <label>Email</label>
-                <input name="email" type="email" required>
-            </div>
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" name="password" required>
-            </div>
-            <button type="submit">Entrar</button>
-        </form>
-        {% if error %}
-        <div class="error">{{ error }}</div>
-        {% endif %}
-        <div class="hint">💡 Dica: Senha padrão é "teste123"</div>
-    </div>
+<body style="font-family: Arial; background:#f2f2f2;">
+    <h2>🔐 CorpWeb API</h2>
+    <form method="POST">
+        <input name="email" placeholder="email" required><br><br>
+        <input type="password" name="password" placeholder="password" required><br><br>
+        <button type="submit">Entrar</button>
+    </form>
+    {% if error %}
+        <p style="color:red">{{ error }}</p>
+    {% endif %}
+    <p><small>Dica: apenas um usuário conhece a senha padrão</small></p>
 </body>
 </html>
 """
 
 SUCCESS_TEMPLATE = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login Realizado - CorpWeb</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .success-container {
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 520px;
-            text-align: center;
-        }
-        .user-info {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: left;
-            margin: 20px 0;
-        }
-        .token-box {
-            background: #1e1e1e;
-            color: #00ff00;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 12px;
-            word-break: break-all;
-        }
-        .service-card {
-            margin-top: 25px;
-            padding: 20px;
-            border-radius: 12px;
-            background: #eef1ff;
-        }
-        .service-card a {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 12px 20px;
-            background: #667eea;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-        }
-        .service-card a:hover {
-            background: #5568d3;
-        }
-    </style>
-</head>
-<body>
-    <div class="success-container">
-        <h2>✅ Login Realizado</h2>
+<h2>Login realizado</h2>
+<p><strong>Nome:</strong> {{ name }}</p>
+<p><strong>Email:</strong> {{ email }}</p>
+<p><strong>Role:</strong> {{ role }}</p>
 
-        <div class="user-info">
-            <p><strong>Nome:</strong> {{ name }}</p>
-            <p><strong>Email:</strong> {{ email }}</p>
-            <p><strong>Role:</strong> {{ role }}</p>
-        </div>
+<p><strong>JWT:</strong></p>
+<pre>{{ token }}</pre>
 
-        <p><strong>JWT Token:</strong></p>
-        <div class="token-box">{{ token }}</div>
-
-        <!-- 🔗 LINK PARA O ALVO 2 -->
-        <div class="service-card">
-            <h3>🌐 Outro Serviço Corporativo</h3>
-            <p>Acesse nosso sistema interno de autenticação</p>
-            <a href="http://127.0.0.1:5001/login" target="_blank">
-                Acessar Serviço
-            </a>
-        </div>
-    </div>
-</body>
-</html>
+<hr>
+<p>➡️ Acesse outro sistema corporativo:</p>
+<a href="http://127.0.0.1:5001/login" target="_blank">Ir para Alvo 2</a>
 """
 
 def token_required(f):
@@ -201,7 +98,8 @@ def login():
 
     user = next((u for u in USERS_DB.values() if u["email"] == email), None)
 
-    if user and password == "teste123":
+    # ✅ apenas jsantos conhece a senha
+    if user and user.get("password_plain") == password:
         payload = {
             "user_id": user["id"],
             "email": user["email"],
@@ -227,7 +125,7 @@ def api_login():
 
     user = next((u for u in USERS_DB.values() if u["email"] == email), None)
 
-    if user and password == "teste123":
+    if user and user.get("password_plain") == password:
         payload = {
             "user_id": user["id"],
             "email": user["email"],
@@ -237,10 +135,21 @@ def api_login():
 
     return jsonify({"message": "Invalid credentials"}), 401
 
+# 🚨 ENDPOINT VULNERÁVEL
 @app.route("/api/users")
 @token_required
 def list_users(current_user):
-    return jsonify(list(USERS_DB.values()))
+    leaked_users = []
+
+    for u in USERS_DB.values():
+        leaked_users.append({
+            "id": u["id"],
+            "email": u["email"],
+            "role": u["role"],
+            "password_hash": u.get("password_hash", "NOT STORED")
+        })
+
+    return jsonify(leaked_users)
 
 @app.route("/")
 def home():
@@ -253,6 +162,7 @@ def home():
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("🎯 Alvo 1 (JWT) rodando em http://127.0.0.1:5000/login")
+    print("🎯 Alvo 1 (JWT Vulnerável)")
+    print("👉 http://127.0.0.1:5000/login")
     print("=" * 60)
     app.run(port=5000, debug=True)
