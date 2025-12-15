@@ -10,8 +10,8 @@ app.config["SECRET_KEY"] = SECRET_KEY
 
 USERS_DB = {
     1: {"id": 1, "email": "admin@corpweb.lab", "name": "Admin CorpWeb", "role": "admin"},
-    2: {"id": 2, "email": "user1@corpweb.lab", "name": "Usuario Um", "role": "user"},
-    3: {"id": 3, "email": "user2@corpweb.lab", "name": "Usuario Dois", "role": "user"}
+    2: {"id": 2, "email": "jsantos@corpweb.lab", "name": "Usuario Um", "role": "user"},
+    3: {"id": 3, "email": "jsilva@corpweb.lab", "name": "Usuario Dois", "role": "user"}
 }
 
 LOGIN_TEMPLATE = """
