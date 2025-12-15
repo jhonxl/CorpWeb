@@ -107,17 +107,18 @@ Ao executar, o navegador será aberto automaticamente com os alvos do lab.
 
 ### 🔑 Credenciais iniciais do Lab (Alvo 1)
 
-**Senha fixa do lab:**
+**Login que você recebe: **
 
 ```
+jsantos@corpweb.lab
 teste123
 ```
 
 **Usuários válidos:**
 
 * `admin@corpweb.lab`
-* `user1@corpweb.lab`
-* `user2@corpweb.lab`
+* `jsantos@corpweb.lab`
+* `jsilva@corpweb.lab`
 
 ---
 
