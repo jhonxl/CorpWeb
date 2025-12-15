@@ -3,6 +3,8 @@ import sys
 import time
 import os
 
+REQUIREMENTS = "requirements.txt"
+
 def banner():
     print("""
 ==============================================
@@ -19,20 +21,31 @@ CTRL+C para encerrar os alvos
 ==============================================
 """)
 
-def check_files():
-    required_files = [
-        "alvo1_jwt.py",
-        "alvo2_senha_padrao.py"
-    ]
+def check_requirements():
+    if not os.path.isfile(REQUIREMENTS):
+        print("[ERRO] requirements.txt não encontrado.")
+        sys.exit(1)
 
-    for file in required_files:
-        if not os.path.isfile(file):
-            print(f"[ERRO] Arquivo não encontrado: {file}")
+    try:
+        import flask
+        import jwt
+    except ImportError:
+        print("[INFO] Dependências não encontradas. Instalando automaticamente...")
+        subprocess.check_call(
+            [sys.executable, "-m", "pip", "install", "-r", REQUIREMENTS]
+        )
+
+def check_files():
+    files = ["alvo1_jwt.py", "alvo2_senha_padrao.py"]
+    for f in files:
+        if not os.path.isfile(f):
+            print(f"[ERRO] Arquivo ausente: {f}")
             sys.exit(1)
 
 def main():
     banner()
     check_files()
+    check_requirements()
 
     try:
         subprocess.Popen([sys.executable, "alvo1_jwt.py"])
