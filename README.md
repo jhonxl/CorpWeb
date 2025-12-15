@@ -1,5 +1,4 @@
 
-````md
 # 🧪 Lab de Pentest: Combo VAZAMENTO JWT + SENHA PADRÃO (Python/Flask)
 
 Este repositório contém o código-fonte de duas aplicações Flask (Python) simulando um ambiente de **Pentest Fictício** chamado **CorpWeb Security Lab**.
