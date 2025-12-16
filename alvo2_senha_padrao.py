@@ -141,7 +141,7 @@ LOGIN_TEMPLATE = '''
 <body>
     {% if show_message %}
     <div class="system-banner">
-        📢 {{ system_message }}
+         {{ system_message }}
     </div>
     {% endif %}
     <div class="login-container">
@@ -505,7 +505,7 @@ ADMIN_PANEL_TEMPLATE = '''
             <div class="congratulations">
                 <h1> PARABÉNS, ADMINISTRADOR!</h1>
                 <p>Você conseguiu explorar o Alvo 2 e acessar a conta admin com sucesso!</p>
-                <p><strong>Vulnerabilidade explorada:</strong> Senha padrão exposta no endpoint /default</p>
+                <p><strong>Vulnerabilidade explorada:</strong> Senha padrão exposta no endpoint e usuário admin com senha padrão /default</p>
             </div>
             <h2> Painel Administrativo</h2>
             <p style="color: #666;">Gerencie as configurações do sistema CorpWeb</p>
