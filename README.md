@@ -68,7 +68,7 @@ python start.py
 python start.py
 ```
 
-ou simplesmente:
+ou simplesmente, após extrair os arquivos, dê dois cliques no:
 
 ```bat
 start.bat
