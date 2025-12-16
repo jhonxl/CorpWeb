@@ -171,7 +171,7 @@ LOGIN_TEMPLATE = """
         </div>
         {% endif %}
         <div class="hint">
-            <strong>💡 Dica:</strong> Apenas um usuário conhece a senha padrão
+            <strong> Dica:</strong> Apenas um usuário conhece a senha padrão
         </div>
     </div>
 </body>
