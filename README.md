@@ -15,7 +15,6 @@ O objetivo do lab é demonstrar uma metodologia que combina:
 
 Este código foi criado **EXCLUSIVAMENTE PARA FINS EDUCACIONAIS E DE ESTUDO**.
 
-- **Não utilize este código** para atacar sistemas reais sem autorização.
 - Todo uso deve seguir princípios legais e éticos (*white hat*).
 
 ---
