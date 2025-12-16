@@ -42,35 +42,304 @@ LOGIN_TEMPLATE = """
 <!DOCTYPE html>
 <html>
 <head>
-    <title>CorpWeb API Login</title>
+    <title>CorpWeb API - Login</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .hint {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #555;
+        }
+        .hint strong {
+            color: #667eea;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+    </style>
 </head>
-<body style="font-family: Arial; background:#f2f2f2;">
-    <h2>🔐 CorpWeb API</h2>
-    <form method="POST">
-        <input name="email" placeholder="email" required><br><br>
-        <input type="password" name="password" placeholder="password" required><br><br>
-        <button type="submit">Entrar</button>
-    </form>
-    {% if error %}
-        <p style="color:red">{{ error }}</p>
-    {% endif %}
-    <p><small>Dica: apenas um usuário conhece a senha padrão</small></p>
+<body>
+    <div class="login-container">
+        <h2>🔐 CorpWeb API</h2>
+        <p class="subtitle">JWT Authentication System</p>
+        <form method="POST">
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" name="email" placeholder="Digite seu email" required>
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Digite sua senha" required>
+            </div>
+            <button type="submit">Entrar</button>
+        </form>
+        {% if error %}
+        <div class="message error">
+            {{ error }}
+        </div>
+        {% endif %}
+        <div class="hint">
+            <strong>💡 Dica:</strong> Apenas um usuário conhece a senha padrão
+        </div>
+    </div>
 </body>
 </html>
 """
 
 SUCCESS_TEMPLATE = """
-<h2>Login realizado</h2>
-<p><strong>Nome:</strong> {{ name }}</p>
-<p><strong>Email:</strong> {{ email }}</p>
-<p><strong>Role:</strong> {{ role }}</p>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Realizado - CorpWeb API</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .success-container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .check-icon {
+            font-size: 64px;
+            color: #28a745;
+            margin-bottom: 20px;
+            animation: bounce 0.6s ease-out;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+        .welcome-text {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        .user-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .user-info p {
+            color: #555;
+            margin: 10px 0;
+            font-size: 15px;
+        }
+        .user-info strong {
+            color: #333;
+        }
+        .token-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .token-section h3 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .token-box {
+            background: #2d3748;
+            color: #48bb78;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            word-break: break-all;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+            color: white;
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(33, 147, 176, 0.4);
+        }
+        .arrow-icon {
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="check-icon">✓</div>
+        <h2>Login Realizado!</h2>
+        <p class="welcome-text">Autenticação JWT bem-sucedida</p>
+        
+        <div class="user-info">
+            <p><strong>👤 Nome:</strong> {{ name }}</p>
+            <p><strong>📧 Email:</strong> {{ email }}</p>
+            <p><strong>🔑 Role:</strong> {{ role }}</p>
+        </div>
 
-<p><strong>JWT:</strong></p>
-<pre>{{ token }}</pre>
+        <div class="token-section">
+            <h3>🔐 JWT Token</h3>
+            <div class="token-box">{{ token }}</div>
+        </div>
 
-<hr>
-<p>➡️ Acesse outro sistema corporativo:</p>
-<a href="http://127.0.0.1:5001/login" target="_blank">Ir para Alvo 2</a>
+        <div class="actions">
+            <a href="/login" class="btn btn-secondary">← Voltar ao Login</a>
+            <a href="http://127.0.0.1:5001/login" target="_blank" class="btn btn-success">
+                Ir para Alvo 2 <span class="arrow-icon">→</span>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
 """
 
 def token_required(f):
